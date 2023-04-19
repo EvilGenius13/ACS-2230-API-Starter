@@ -7,7 +7,7 @@ const Director = require('../models/director')
 // All movies
 router.get('/', async (req, res) => {
   try {
-    const movies = await Movie.find({}).populate('director');
+    const movies = await Movie.find({});
     return res.json({movies});
   } catch (err) {
     throw err.message;
@@ -17,20 +17,27 @@ router.get('/', async (req, res) => {
 // Add movie
 router.post('/', async (req, res) => {
   const {title, year, director} = req.body;
+  
+  // Find the director object by ID
+  const directorObj = await Director.findById(director);
+
   const newMovie = new Movie({
     title,
     year,
-    director
+    director: directorObj // Assign the director object to the movie
   })
 
   newMovie.save()
-    .then(movie => {
+    .then(async (movie) => {
+      // Add the movie to the director's movies array
+      directorObj.movies.push(movie._id);
+      await directorObj.save();
+
       res.json({msg: 'Movie added successfully'})
     })
     .catch(err => {
       res.send('error: ' + err)
     })
 })
-
 
 module.exports = router

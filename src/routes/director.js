@@ -6,7 +6,7 @@ const Director = require('../models/director');
 router.get('/', async (req, res) => {
   try {
     
-    const directors = await Director.find({}).populate('movies');
+    const directors = await Director.find({});
     return res.json({directors});
   } catch (err) {
     throw err.message;
